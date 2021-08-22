@@ -1,0 +1,27 @@
+<mat-card>
+    <mat-card-title>voeg talent toe</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="talent" (ngSubmit)='onSubmit()'>
+        <mat-form-field>
+          <input 
+          matInput 
+          aria-label="naam"
+          placeholder="naam" 
+          type="text" 
+          formControlName="naam"
+          required
+          />
+          
+          <mat-error *ngIf="talent.get('naam')['errors']?.required && 
+          talent.get('naam').touched">
+            {{ getErrorMessage(talent.get('naam')['errors']) }}
+          </mat-error>
+           
+        </mat-form-field>
+        
+        <button mat-raised-button type="submit" [disabled]='!talent.valid'>
+          add talent
+        </button>
+      </form>
+    </mat-card-content>
+    </mat-card> 

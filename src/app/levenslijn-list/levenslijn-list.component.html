@@ -1,0 +1,21 @@
+<div fxLayout="column" fxLayoutGap="2%">
+    <app-add-levenslijn (newLevenslijn)="addNewLevenslijn($event)"></app-add-levenslijn>
+    <div *ngIf="levenslijn$ | async as levenslijn;">
+    <div
+      fxLayout="row wrap"
+      fxLayout.xs="column"
+      fxLayoutGap="0.5%"
+      fxLayoutAlign="start"
+    >
+  
+      <div 
+        class="levenslijn"
+        *ngFor="let levenslijn of levenslijn "
+        fxFlex="0 0 calc(25%-0.5%)"
+        fxFlex.xs="100%"
+      >
+        <app-levenslijn [levenslijn]="levenslijn"></app-levenslijn>
+      </div>
+    </div>
+  </div>
+  </div>

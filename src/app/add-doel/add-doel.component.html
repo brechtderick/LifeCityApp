@@ -1,0 +1,48 @@
+<mat-card>
+    <mat-card-title>Voeg doel toe</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="doel" (ngSubmit)='onSubmit()'>
+        <mat-form-field>
+          <input 
+          matInput 
+          aria-label="naam"
+          placeholder="naam" 
+          type="text" 
+          formControlName="naam"
+          required
+          />
+          
+          <mat-error *ngIf="doel.get('naam')['errors']?.required && 
+          doel.get('naam').touched">
+            {{ getErrorMessage(doel.get('naam')['errors']) }}
+          </mat-error>
+           
+        </mat-form-field>
+        <div>
+          <mat-form-field>
+            <input 
+            matInput 
+            type="text" 
+            aria-label="beschrijving"
+            placeholder="beschrijving" 
+            formControlName="beschrijving"/>
+          </mat-form-field>
+        </div>
+
+        <div>
+            <mat-form-field>
+                <input 
+                matInput 
+                type="date" 
+                aria-label="datum"
+                placeholder="datum" 
+                formControlName="datum"/>
+              </mat-form-field>
+        </div>
+            
+        <button mat-raised-button type="submit" [disabled]='!doel.valid'>
+          add doel
+        </button>
+      </form>
+    </mat-card-content>
+    </mat-card> 

@@ -1,0 +1,21 @@
+<div fxLayout="column" fxLayoutGap="2%">
+    <app-add-talent (newTalent)="addNewTalent($event)"></app-add-talent>
+    <div *ngIf="talenten$ | async as talenten;">
+    <div
+      fxLayout="row wrap"
+      fxLayout.xs="column"
+      fxLayoutGap="0.5%"
+      fxLayoutAlign="start"
+    >
+  
+      <div 
+        class="talent"
+        *ngFor="let talent of talenten "
+        fxFlex="0 0 calc(25%-0.5%)"
+        fxFlex.xs="100%"
+      >
+        <app-talenten [talent]="talent"></app-talenten>
+      </div>
+    </div>
+  </div>
+  </div>

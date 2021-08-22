@@ -1,0 +1,21 @@
+<div fxLayout="column" fxLayoutGap="2%">
+    <app-add-doel (newDoel)="addNewDoel($event)"></app-add-doel>
+    <div *ngIf="doel$ | async as doel;">
+    <div
+      fxLayout="row wrap"
+      fxLayout.xs="column"
+      fxLayoutGap="0.5%"
+      fxLayoutAlign="start"
+    >
+      <div 
+        class="doel"
+        *ngFor="let doel of doel"
+        fxFlex="0 0 calc(25%-0.5%)"
+        fxFlex.xs="100%"
+      >
+      
+        <app-doelen [doel]="doel"></app-doelen>
+      </div>
+    </div>
+  </div>
+</div>

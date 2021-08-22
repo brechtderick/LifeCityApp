@@ -1,0 +1,38 @@
+<mat-card>
+  <mat-card-title>maak emotie</mat-card-title>
+  <mat-card-content>
+    <form [formGroup]="emotie" (ngSubmit)='onSubmit()'>
+      <mat-form-field>
+        <input 
+        matInput 
+        aria-label="beschrijving"
+        placeholder="beschrijving" 
+        type="text" 
+        formControlName="beschrijving"
+        required
+        />
+        
+        <mat-error *ngIf="emotie.get('beschrijving')['errors']?.required && 
+        emotie.get('beschrijving').touched">
+          {{ getErrorMessage(emotie.get('beschrijving')['errors']) }}
+        </mat-error>
+         
+      </mat-form-field>
+      <div>
+        <mat-form-field>
+          <input 
+          matInput 
+          type="text" 
+          aria-label="emoties"
+          placeholder="emoties" 
+          formControlName="emoties"/>
+        </mat-form-field>
+      </div>
+          
+      <button mat-raised-button type="submit" [disabled]='!emotie.valid'>
+        add emotie
+      </button>
+    </form>
+  </mat-card-content>
+  </mat-card> 
+  

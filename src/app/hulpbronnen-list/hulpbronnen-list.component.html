@@ -1,0 +1,21 @@
+<div fxLayout="column" fxLayoutGap="2%">
+    <app-add-hulpbron (newHulpbron)="addNewHulpbron($event)"></app-add-hulpbron>
+    <div *ngIf="hulpbronnen$ | async as hulpbronnen;">
+    <div
+      fxLayout="row wrap"
+      fxLayout.xs="column"
+      fxLayoutGap="0.5%"
+      fxLayoutAlign="start"
+    >
+  
+      <div 
+        class="hulpbron"
+        *ngFor="let hulpbron of hulpbronnen "
+        fxFlex="0 0 calc(25%-0.5%)"
+        fxFlex.xs="100%"
+      >
+        <app-hulpbronnen [hulpbron]="hulpbron"></app-hulpbronnen>
+      </div>
+    </div>
+  </div>
+  </div>
