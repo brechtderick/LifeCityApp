@@ -4,6 +4,7 @@ import { EMPTY, Observable, Subject } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TalentenDataService } from '../talenten-data.service';
 import { Talenten } from '../talenten/talenten.model';
+import { AuthenticationService } from '../user/authentication.service';
 
 @Component({
   selector: 'app-talenten-list',
@@ -11,6 +12,7 @@ import { Talenten } from '../talenten/talenten.model';
   styleUrls: ['./talenten-list.component.css']
 })
 export class TalentenListComponent implements OnInit {
+  loggedInUser$ = this._authenticationService.user$
   public filterTalentenNaam: string='';
   public talenten: Talenten[] | undefined;
   public filterTalentenNaam$ = new Subject<string>();
@@ -25,7 +27,8 @@ export class TalentenListComponent implements OnInit {
   constructor(
     private _talentenDataService: TalentenDataService,
     private _router: Router,
-    private _route: ActivatedRoute
+    private _route: ActivatedRoute,
+    private _authenticationService: AuthenticationService,
   ) {
     this.filterTalentenNaam$
     .pipe(distinctUntilChanged(), debounceTime(250))
@@ -53,14 +56,14 @@ export class TalentenListComponent implements OnInit {
 
     this._route.queryParams.subscribe(params => {
       this._talentenDataService
-      .getTalenten$(params['filter'])
+      .getTalentUser$(this.loggedInUser$.value)
       .pipe(
         catchError((err) => {
           this.errorMessage = err;
           return EMPTY;
         })
       )
-      .subscribe(val => (this.talenten = val));
+      .subscribe();
       if (params['filter']) {
         this.filterTalentenNaam = params['filter'];
       }

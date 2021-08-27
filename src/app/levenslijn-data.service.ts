@@ -4,16 +4,18 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Levenslijn } from './levenslijn/levenslijn.model';
+import { AuthenticationService } from './user/authentication.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LevenslijnDataService {
+  loggedInUser$ = this._authenticationService.user$
   private _levenslijn$ = new BehaviorSubject<Levenslijn[]>([]);
   private _levenslijn: Levenslijn[] | undefined;
   private _reloadLevenslijn$ = new BehaviorSubject<boolean>(true);
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private _authenticationService: AuthenticationService) {
     this._levenslijn$.subscribe((Levenslijn: Levenslijn[]) =>{
       this._levenslijn = Levenslijn;
       this._levenslijn$.next(this._levenslijn);
@@ -25,7 +27,8 @@ export class LevenslijnDataService {
    }
 
    get levenslijn$(): Observable<Levenslijn[]> {
-     return this.http.get(`${environment.apiUrl}/levenslijn/`).pipe(
+    
+     return this.http.get(`${environment.apiUrl}/levenslijn/${this.loggedInUser$.value}`).pipe(
       tap(console.log),
       shareReplay(1),
       map((list:any[]): Levenslijn[] => list.map(Levenslijn.fromJSON))

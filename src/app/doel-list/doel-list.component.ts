@@ -4,6 +4,7 @@ import { EMPTY, Observable, Subject } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DoelDataService } from '../doel-data.service';
 import { Doel } from '../doelen/doel.model';
+import { AuthenticationService } from '../user/authentication.service';
 
 @Component({
   selector: 'app-doel-list',
@@ -11,6 +12,7 @@ import { Doel } from '../doelen/doel.model';
   styleUrls: ['./doel-list.component.css']
 })
 export class DoelListComponent implements OnInit {
+  loggedInUser$ = this._authenticationService.user$
   public filterDoelNaam: string='';
   public doel: Doel[] | undefined;
   public filterDoelNaam$ = new Subject<string>();
@@ -25,7 +27,8 @@ export class DoelListComponent implements OnInit {
   constructor(
     private _doelDataService: DoelDataService,
     private _router: Router,
-    private _route: ActivatedRoute
+    private _route: ActivatedRoute,
+    private _authenticationService: AuthenticationService,
   ) {
     this.filterDoelNaam$
     .pipe(distinctUntilChanged(), debounceTime(250))
@@ -53,14 +56,14 @@ export class DoelListComponent implements OnInit {
 
     this._route.queryParams.subscribe(params =>{
       this._doelDataService
-      .getDoelen$(params['filter'])
+      .getDoelUser$(this.loggedInUser$.value)
       .pipe(
         catchError((err) => {
           this.errorMessage = err;
           return EMPTY;
         })
       )
-      .subscribe(val => (this.doel = val));
+      .subscribe();
       if(params['filter']) {
         this.filterDoelNaam = params['filter'];
       }

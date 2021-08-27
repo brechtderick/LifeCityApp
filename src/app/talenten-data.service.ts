@@ -4,16 +4,20 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Talenten } from './talenten/talenten.model';
+import { AuthenticationService } from './user/authentication.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TalentenDataService {
+  loggedInUser$ = this._authenticationService.user$
   private _talenten$ = new BehaviorSubject<Talenten[]>([]);
   private _talenten: Talenten[] | undefined;
   private _reloadTalenten$ = new BehaviorSubject<boolean>(true);
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient, 
+    private _authenticationService: AuthenticationService) {
     this._talenten$.subscribe((talenten: Talenten[]) =>{
       this._talenten = talenten;
       this._talenten$.next(this._talenten);
@@ -25,7 +29,7 @@ export class TalentenDataService {
    }
 
    get talenten$():Observable<Talenten[]>{
-     return this.http.get(`${environment.apiUrl}/talenten/`).pipe(
+     return this.http.get(`${environment.apiUrl}/talenten/${this.loggedInUser$.value}`).pipe(
        tap(console.log),
        shareReplay(1),
        map((list: any[]): Talenten[] => list.map(Talenten.fromJSON))

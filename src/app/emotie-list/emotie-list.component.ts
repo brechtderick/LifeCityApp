@@ -5,6 +5,7 @@ import { EMPTY, Observable, Subject } from 'rxjs';
 import { distinctUntilChanged, debounceTime,
   map, filter, catchError } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthenticationService } from '../user/authentication.service';
 
 @Component({
   selector: 'app-emotie-list',
@@ -12,7 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./emotie-list.component.css']
 })
 export class EmotieListComponent implements OnInit {
-
+  loggedInUser$ = this._authenticationService.user$
   public filterEmotieBeschrijving: string ='' ;
   public emoties: Emotieregulatie[] | undefined;
   public filterEmotieBeschrijving$ = new Subject<string>();
@@ -27,7 +28,8 @@ export class EmotieListComponent implements OnInit {
   constructor(
     private _emotieDataService: EmotieDataService,
     private _router: Router,
-    private _route: ActivatedRoute
+    private _route: ActivatedRoute,
+    private _authenticationService: AuthenticationService,
     ) 
     {
     this.filterEmotieBeschrijving$
@@ -57,14 +59,14 @@ export class EmotieListComponent implements OnInit {
 
     this._route.queryParams.subscribe(params => {
       this._emotieDataService
-        .getEmoties$(params['filter'])
+        .getEmotieUser$(this.loggedInUser$.value)
         .pipe(
           catchError((err) => {
             this.errorMessage = err;
             return EMPTY;
           })
         )
-        .subscribe(val => (this.emoties = val));
+        .subscribe();
       if (params['filter']) {
         this.filterEmotieBeschrijving = params['filter'];
       }

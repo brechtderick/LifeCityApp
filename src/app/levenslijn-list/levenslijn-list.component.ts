@@ -4,6 +4,7 @@ import { EMPTY, Observable, Subject } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { LevenslijnDataService } from '../levenslijn-data.service';
 import { Levenslijn } from '../levenslijn/levenslijn.model';
+import { AuthenticationService } from '../user/authentication.service';
 
 @Component({
   selector: 'app-levenslijn-list',
@@ -11,6 +12,7 @@ import { Levenslijn } from '../levenslijn/levenslijn.model';
   styleUrls: ['./levenslijn-list.component.css']
 })
 export class LevenslijnListComponent implements OnInit {
+  loggedInUser$ = this._authenticationService.user$
   public filterLevenslijnNaam: string='';
   public levenslijn: Levenslijn[] | undefined;
   public filterLevenslijnNaam$ = new Subject<string>();
@@ -25,7 +27,8 @@ export class LevenslijnListComponent implements OnInit {
   constructor(
     private _levenslijnDataService: LevenslijnDataService,
     private _router: Router,
-    private _route: ActivatedRoute
+    private _route: ActivatedRoute,
+    private _authenticationService: AuthenticationService,
   ) {
     this.filterLevenslijnNaam$
     .pipe(distinctUntilChanged(), debounceTime(250))
@@ -53,14 +56,14 @@ export class LevenslijnListComponent implements OnInit {
 
     this._route.queryParams.subscribe(params => {
       this._levenslijnDataService
-      .getLevenslijnen$(params['filter'])
+      .getLevenslijnUser$(this.loggedInUser$.value)
       .pipe(
         catchError((err) => {
           this.errorMessage = err;
           return EMPTY;
         })
       )
-      .subscribe(val => (this.levenslijn = val));
+      .subscribe();
       if (params['filter']) {
         this.filterLevenslijnNaam = params['filter'];
       }

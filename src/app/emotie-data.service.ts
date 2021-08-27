@@ -5,16 +5,20 @@ import { throwError } from 'rxjs/internal/observable/throwError';
 import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Emotieregulatie } from './emotieregulatie/emotieregulatie.model';
+import { AuthenticationService } from './user/authentication.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EmotieDataService {
+  loggedInUser$ = this._authenticationService.user$
   private _emoties$ = new BehaviorSubject<Emotieregulatie[]>([]);
   private _emoties: Emotieregulatie[] | undefined;
   private _reloadEmoties$ = new BehaviorSubject<boolean>(true);
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private _authenticationService: AuthenticationService) {
     this.emoties$.subscribe((emoties: Emotieregulatie[]) =>{
       this._emoties = emoties;
       this._emoties$.next(this._emoties);
@@ -26,7 +30,7 @@ export class EmotieDataService {
   }
 
   get emoties$(): Observable< Emotieregulatie[] > {
-    return this.http.get(`${environment.apiUrl}/emotieregulaties/`).pipe(
+    return this.http.get(`${environment.apiUrl}/emotieregulaties/${this.loggedInUser$.value}`).pipe(
       tap(console.log),
       shareReplay(1),
       map((list: any[]): Emotieregulatie[] => list.map(Emotieregulatie.fromJSON))
@@ -36,6 +40,12 @@ export class EmotieDataService {
   getEmotie$(id: string): Observable<Emotieregulatie> {
     return this.http
       .get<any>(`${environment.apiUrl}/recipes/${id}`)
+      .pipe(catchError(this.handleError), map(Emotieregulatie.fromJSON)); // returns just one recipe, as json
+  }
+
+  getEmotieUser$(user: string): Observable<Emotieregulatie> {
+    return this.http
+      .get<any>(`${environment.apiUrl}/recipes/${user}`)
       .pipe(catchError(this.handleError), map(Emotieregulatie.fromJSON)); // returns just one recipe, as json
   }
 

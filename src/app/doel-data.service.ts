@@ -4,16 +4,20 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Doel } from './doelen/doel.model';
+import { AuthenticationService } from './user/authentication.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DoelDataService {
+  loggedInUser$ = this._authenticationService.user$
   private _doel$ = new BehaviorSubject<Doel[]>([]);
   private _doel: Doel[] | undefined;
   private _reloadDoel$ = new BehaviorSubject<boolean>(true);
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private _authenticationService: AuthenticationService) {
     this._doel$.subscribe((Doel: Doel[]) =>{
       this._doel = Doel;
       this._doel$.next(this._doel);
@@ -25,7 +29,7 @@ export class DoelDataService {
    }
 
    get doel$(): Observable<Doel[]> {
-     return this.http.get(`${environment.apiUrl}/doel/`).pipe(
+     return this.http.get(`${environment.apiUrl}/doel/${this.loggedInUser$.value}`).pipe(
       tap(console.log),
       shareReplay(1),
       map((list:any[]): Doel[] => list.map(Doel.fromJSON))
