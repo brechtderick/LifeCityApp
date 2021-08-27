@@ -4,16 +4,20 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Hulpbronnen } from './hulpbronnen/hulpbronnen.model';
+import { AuthenticationService } from './user/authentication.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HulpbronDataService {
+  loggedInUser$ = this._authenticationService.user$
   private _hulpbronnen$ = new BehaviorSubject<Hulpbronnen[]>([]);
   private _hulpbronnen: Hulpbronnen[] | undefined;
   private _reloadHulpbronnen$ = new BehaviorSubject<boolean>(true);
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient, 
+    private _authenticationService: AuthenticationService) {
     this._hulpbronnen$.subscribe((hulpbronnen: Hulpbronnen[]) =>{
       this._hulpbronnen = hulpbronnen;
       this._hulpbronnen$.next(this._hulpbronnen);
@@ -25,11 +29,13 @@ export class HulpbronDataService {
    }
 
    get hulpbronnen$(): Observable<Hulpbronnen[]>{
-     return this.http.get(`${environment.apiUrl}/hulpbron/`).pipe(
+    
+     return this.http.get(`${environment.apiUrl}/hulpbron/${this.loggedInUser$.value}`).pipe(
       tap(console.log),
       shareReplay(1),
-       map((list:any[]): Hulpbronnen[] => list.map(Hulpbronnen.fromJSON))
+       map((list:any[]): Hulpbronnen[] =>list.map(Hulpbronnen.fromJSON))
      )
+    
    }
 
    getHulpbron$(id: string): Observable<Hulpbronnen>{
@@ -55,7 +61,7 @@ export class HulpbronDataService {
      params = naam? params.append('naam',naam) : params;
      params = user?params.append('user', user):params;
      params = beschrijving?params.append('beschrijving', beschrijving) : params;
-     return this.http.get<any>(`${environment.apiUrl}/hulpbron/`,{params}).pipe(
+     return this.http.get<any>(`${environment.apiUrl}/hulpbron/${user}`,{params}).pipe(
        catchError(this.handleError),
        map((list: any[]): Hulpbronnen[] => list.map(Hulpbronnen.fromJSON))
      )
